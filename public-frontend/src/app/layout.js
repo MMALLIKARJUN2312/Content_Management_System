@@ -1,5 +1,7 @@
 import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -24,7 +26,11 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <Nav />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }
