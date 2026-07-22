@@ -1,0 +1,97 @@
+# Dependencies
+
+node_modules/
+*/node_modules/
+
+# Environment Variables
+
+.env
+.env.*
+!.env.example
+
+# Next.js
+
+.next/
+*/.next/
+
+out/
+*/out/
+
+# Build Files
+
+dist/
+*/dist/
+
+build/
+*/build/
+
+# Logs
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+logs/
+*/logs/
+
+# Cache
+
+.cache/
+.eslintcache
+.next/cache/
+
+# TypeScript
+
+*.tsbuildinfo
+
+
+# Testing
+
+coverage/
+*/coverage/
+
+.nyc_output/
+
+
+# Uploads / User Generated Files
+
+uploads/
+*/uploads/
+
+public/uploads/
+
+
+# MongoDB Local Files
+
+data/
+*/data/
+
+*.db
+*.sqlite
+
+# IDE Settings
+
+.vscode/
+.idea/
+
+*.swp
+*.swo
+
+
+# Operating System Files
+
+.DS_Store
+Thumbs.db
+
+
+# Deployment
+
+.vercel/
+.netlify/
+
+
+# Docker
+
+docker-compose.override.yml
