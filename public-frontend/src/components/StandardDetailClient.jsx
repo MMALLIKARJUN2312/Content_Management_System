@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowUp, Link2 } from 'lucide-react';
 import Badge from './ui/Badge';
 import Container from './Container';
@@ -21,13 +21,26 @@ export default function StandardDetailClient({ standard, versions, initialVersio
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [feedbackError, setFeedbackError] = useState(false);
 
+  // Not global state — just an in-memory cache scoped to this one page visit,
+  // so re-selecting a version already viewed doesn't hit the network again.
+  const versionCache = useRef(new Map(initialVersion ? [[initialVersion._id, initialVersion]] : []));
+
   const handleSelectVersion = async (versionId) => {
     if (versionId === currentVersion?._id) return;
-    setLoadingVersion(true);
     setVersionError(false);
+
+    const cached = versionCache.current.get(versionId);
+    if (cached) {
+      setCurrentVersion(cached);
+      return;
+    }
+
+    setLoadingVersion(true);
     try {
       const data = await getJSON(`/standards/${standard.slug}/versions/${versionId}`);
-      setCurrentVersion(data?.version || null);
+      const version = data?.version || null;
+      if (version) versionCache.current.set(versionId, version);
+      setCurrentVersion(version);
     } catch {
       setVersionError(true);
     } finally {
