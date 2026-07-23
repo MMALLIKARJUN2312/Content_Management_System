@@ -9,11 +9,11 @@ export default function Input({ label, error, icon: Icon, className, id, ...prop
         </label>
       )}
       <div className="relative flex items-center">
-        {Icon && <Icon className="pointer-events-none absolute left-3 h-4 w-4 text-ink-500" />}
+        {Icon && <Icon className="pointer-events-none absolute left-3 h-4 w-4 text-ink-500" aria-hidden="true" />}
         <input
           id={id}
           className={cn(
-            'w-full rounded-lg border bg-surface-card py-2 text-sm text-ink-900 placeholder:text-ink-500 focus:outline-none focus:ring-2 focus:ring-brand-100',
+            'w-full rounded-lg border bg-surface-card py-2 text-sm text-ink-900 placeholder:text-ink-500 focus:outline-none focus:ring-2 focus:ring-brand-500',
             error ? 'border-red-400 focus:border-red-500' : 'border-surface-border focus:border-brand-500',
             Icon ? 'pl-9 pr-3' : 'px-3',
             className,

@@ -5,7 +5,7 @@ import Container from "@/components/Container";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 items-center">
+    <main id="main-content" className="flex flex-1 items-center">
       <Container className="flex flex-col items-start gap-6 py-24">
         <Badge tone="brand">✓ Standards</Badge>
         <h1 className="max-w-2xl font-display text-5xl italic text-ink-900">

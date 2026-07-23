@@ -11,7 +11,7 @@ export default async function StandardDetailPage({ params }) {
     data = await getJSON(`/standards/${slug}`);
   } catch {
     return (
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Container className="py-16">
           <p className="text-sm text-red-600">
             Unable to load this standard right now. Please try again shortly.

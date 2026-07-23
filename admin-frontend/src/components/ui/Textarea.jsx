@@ -11,7 +11,7 @@ export default function Textarea({ label, error, className, id, ...props }) {
       <textarea
         id={id}
         className={cn(
-          'w-full rounded-lg border bg-surface-card px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 focus:outline-none focus:ring-2 focus:ring-brand-100',
+          'w-full rounded-lg border bg-surface-card px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 focus:outline-none focus:ring-2 focus:ring-brand-500',
           error ? 'border-red-400 focus:border-red-500' : 'border-surface-border focus:border-brand-500',
           className,
         )}

@@ -23,7 +23,7 @@
   /* Ink (text) scale */
   --color-ink-900: #17171a;
   --color-ink-700: #3f3f46;
-  --color-ink-500: #6b7280;
+  --color-ink-500: #57606c;
   --color-ink-300: #d4d4d8;
   --color-ink-100: #f0f0ee;
 
@@ -32,12 +32,13 @@
   --color-surface-card: #ffffff;
   --color-surface-dark: #17171a;
 
-  /* Status (Standard version lifecycle) */
-  --color-status-certified: #16a34a;
+  /* Status (Standard version lifecycle) — darkened from the original accent
+     hues so pill text/dots meet WCAG AA (4.5:1) against their light backgrounds. */
+  --color-status-certified: #166534;
   --color-status-certified-bg: #dcfce7;
-  --color-status-consultation: #d97706;
+  --color-status-consultation: #92400e;
   --color-status-consultation-bg: #fef3c7;
-  --color-status-draft: #6b7280;
+  --color-status-draft: #374151;
   --color-status-draft-bg: #f3f4f6;
 
   --radius-card: 1rem;

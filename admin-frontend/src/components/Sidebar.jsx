@@ -31,6 +31,15 @@ export default function Sidebar({ open, onClose }) {
     return () => mq.removeEventListener('change', update);
   }, []);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open, onClose]);
+
   const handleLogout = async () => {
     await dispatch(logoutAdmin());
     router.push('/login');
@@ -53,7 +62,7 @@ export default function Sidebar({ open, onClose }) {
         <div className="flex items-center justify-between px-2 pb-6">
           <Logo />
           <button type="button" onClick={onClose} className="text-ink-500 hover:text-ink-900 md:hidden" aria-label="Close menu">
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -70,7 +79,7 @@ export default function Sidebar({ open, onClose }) {
                   active ? 'bg-brand-50 text-brand-700' : 'text-ink-700 hover:bg-ink-100',
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-4 w-4" aria-hidden="true" />
                 {label}
               </Link>
             );
@@ -82,7 +91,7 @@ export default function Sidebar({ open, onClose }) {
           onClick={handleLogout}
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink-700 hover:bg-ink-100"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4" aria-hidden="true" />
           Log out
         </button>
       </aside>

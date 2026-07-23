@@ -75,7 +75,7 @@ export default function StandardDetailClient({ standard, versions, initialVersio
   const sortedSections = [...(currentVersion?.sections || [])].sort((a, b) => a.order - b.order);
 
   return (
-    <main className="flex-1">
+    <main id="main-content" className="flex-1">
       <Container className="flex flex-col gap-8 py-16">
         <div className="flex flex-col gap-3">
           <Badge tone="brand">✓ Standards</Badge>
@@ -159,6 +159,11 @@ export default function StandardDetailClient({ standard, versions, initialVersio
             setFeedbackVersionId(null);
             setFeedback(null);
             setFeedbackError(false);
+            // The button that opened this (inside the version dropdown's
+            // expanded list) unmounts when the dropdown closes, so restoring
+            // focus to it isn't possible — send it to the dropdown's own
+            // toggle instead, which is a stable, always-present element.
+            document.querySelector('[aria-haspopup="listbox"]')?.focus();
           }}
         />
       )}

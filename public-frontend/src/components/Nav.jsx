@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, Menu, X } from 'lucide-react';
@@ -32,18 +32,35 @@ const NAV_LINKS = [
 
 function NavDropdown({ label, items }) {
   const [open, setOpen] = useState(false);
+  const menuId = `nav-dropdown-${label.replace(/\s+/g, '-').toLowerCase()}`;
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open]);
+
   return (
     <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
       <button
         type="button"
         className="flex items-center gap-1 text-sm font-medium text-ink-700 hover:text-ink-900"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        aria-controls={menuId}
       >
         {label}
-        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-180')} />
+        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-180')} aria-hidden="true" />
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-2 w-48 rounded-lg border border-ink-100 bg-surface-card py-2 shadow-lg">
+        <div
+          id={menuId}
+          className="absolute left-0 top-full z-20 mt-2 w-48 rounded-lg border border-ink-100 bg-surface-card py-2 shadow-lg"
+        >
           {items.map((item) => (
             <Link
               key={item.label}
@@ -97,14 +114,16 @@ export default function Nav() {
           type="button"
           className="text-ink-900 md:hidden"
           aria-label="Toggle menu"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav-menu"
           onClick={() => setMobileOpen((v) => !v)}
         >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
         </button>
       </Container>
 
       {mobileOpen && (
-        <div className="border-t border-ink-100 px-6 py-4 md:hidden">
+        <div id="mobile-nav-menu" className="border-t border-ink-100 px-6 py-4 md:hidden">
           <div className="flex flex-col gap-4">
             {NAV_LINKS.map((item) =>
               item.dropdown ? (

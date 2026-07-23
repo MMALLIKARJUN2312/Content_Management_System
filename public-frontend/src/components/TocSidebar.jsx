@@ -14,7 +14,13 @@ export default function TocSidebar({ sections, activeId, onNavigate }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Input icon={Search} placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <Input
+        icon={Search}
+        placeholder="Search"
+        aria-label="Search sections"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
       <nav className="flex flex-col gap-1 text-sm">
         {filtered.map((section) => {
           const id = `section-${section.numbering.join('-')}`;

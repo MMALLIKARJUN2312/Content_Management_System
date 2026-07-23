@@ -15,7 +15,7 @@ export default async function StandardsPage() {
   }
 
   return (
-    <main className="flex-1">
+    <main id="main-content" className="flex-1">
       <Container className="flex flex-col gap-4 py-16">
         <Badge tone="brand">✓ Standards</Badge>
         <h1 className="font-display text-5xl italic text-ink-900">RenewCred Standards</h1>
