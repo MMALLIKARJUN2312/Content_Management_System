@@ -17,6 +17,10 @@ if (env.nodeEnv !== 'test') {
   app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
 }
 
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'RenewCred CMS API', data: { docs: '/api/v1/health' } });
+});
+
 app.use('/api/v1', routes);
 
 app.use(notFound);

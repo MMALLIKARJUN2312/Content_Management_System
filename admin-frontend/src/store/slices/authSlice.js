@@ -29,6 +29,7 @@ const authSlice = createSlice({
     admin: null,
     isAuthenticated: false,
     status: 'idle',
+    sessionChecked: false,
     error: null,
   },
   reducers: {},
@@ -50,10 +51,12 @@ const authSlice = createSlice({
       .addCase(fetchCurrentAdmin.fulfilled, (state, action) => {
         state.isAuthenticated = true;
         state.admin = action.payload.admin;
+        state.sessionChecked = true;
       })
       .addCase(fetchCurrentAdmin.rejected, (state) => {
         state.isAuthenticated = false;
         state.admin = null;
+        state.sessionChecked = true;
       })
       .addCase(logoutAdmin.fulfilled, (state) => {
         state.isAuthenticated = false;
