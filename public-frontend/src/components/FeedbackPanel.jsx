@@ -4,7 +4,7 @@ import { X, Star } from 'lucide-react';
 import Card from './ui/Card';
 import Spinner from './ui/Spinner';
 
-export default function FeedbackPanel({ feedback, isLoading, onClose }) {
+export default function FeedbackPanel({ feedback, isLoading, isError, onClose }) {
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4">
       <Card className="w-full max-w-md p-6">
@@ -21,7 +21,11 @@ export default function FeedbackPanel({ feedback, isLoading, onClose }) {
           </div>
         )}
 
-        {!isLoading && feedback && (
+        {isError && (
+          <p className="text-sm text-red-600">Unable to load feedback right now. Please try again shortly.</p>
+        )}
+
+        {!isLoading && !isError && feedback && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1 text-2xl font-semibold text-ink-900">

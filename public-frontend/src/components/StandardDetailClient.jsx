@@ -14,25 +14,39 @@ import { getJSON } from '@/lib/api';
 export default function StandardDetailClient({ standard, versions, initialVersion }) {
   const [currentVersion, setCurrentVersion] = useState(initialVersion);
   const [loadingVersion, setLoadingVersion] = useState(false);
+  const [versionError, setVersionError] = useState(false);
   const [activeId, setActiveId] = useState(null);
   const [feedbackVersionId, setFeedbackVersionId] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackError, setFeedbackError] = useState(false);
 
   const handleSelectVersion = async (versionId) => {
     if (versionId === currentVersion?._id) return;
     setLoadingVersion(true);
-    const data = await getJSON(`/standards/${standard.slug}/versions/${versionId}`);
-    setCurrentVersion(data?.version || null);
-    setLoadingVersion(false);
+    setVersionError(false);
+    try {
+      const data = await getJSON(`/standards/${standard.slug}/versions/${versionId}`);
+      setCurrentVersion(data?.version || null);
+    } catch {
+      setVersionError(true);
+    } finally {
+      setLoadingVersion(false);
+    }
   };
 
   const handleViewFeedback = async (versionId) => {
     setFeedbackVersionId(versionId);
     setFeedbackLoading(true);
-    const data = await getJSON(`/standards/${standard.slug}/versions/${versionId}/feedback`);
-    setFeedback(data?.feedback || null);
-    setFeedbackLoading(false);
+    setFeedbackError(false);
+    try {
+      const data = await getJSON(`/standards/${standard.slug}/versions/${versionId}/feedback`);
+      setFeedback(data?.feedback || null);
+    } catch {
+      setFeedbackError(true);
+    } finally {
+      setFeedbackLoading(false);
+    }
   };
 
   const handleNavigate = (id) => {
@@ -79,7 +93,14 @@ export default function StandardDetailClient({ standard, versions, initialVersio
                 </div>
               )}
 
+              {versionError && (
+                <p className="text-sm text-red-600">
+                  Unable to load that version right now. Please try again shortly.
+                </p>
+              )}
+
               {!loadingVersion &&
+                !versionError &&
                 sortedSections.map((section) => {
                   const id = `section-${section.numbering.join('-')}`;
                   return (
@@ -120,9 +141,11 @@ export default function StandardDetailClient({ standard, versions, initialVersio
         <FeedbackPanel
           feedback={feedback}
           isLoading={feedbackLoading}
+          isError={feedbackError}
           onClose={() => {
             setFeedbackVersionId(null);
             setFeedback(null);
+            setFeedbackError(false);
           }}
         />
       )}

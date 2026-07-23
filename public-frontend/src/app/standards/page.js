@@ -4,8 +4,15 @@ import StandardCard from "@/components/StandardCard";
 import { getJSON } from "@/lib/api";
 
 export default async function StandardsPage() {
-  const data = await getJSON('/standards');
-  const standards = data?.standards || [];
+  let standards = [];
+  let loadError = false;
+
+  try {
+    const data = await getJSON('/standards');
+    standards = data?.standards || [];
+  } catch {
+    loadError = true;
+  }
 
   return (
     <main className="flex-1">
@@ -17,11 +24,15 @@ export default async function StandardsPage() {
         </p>
 
         <div className="mt-6">
-          {standards.length === 0 ? (
-            <p className="text-sm text-ink-500">No standards published yet.</p>
-          ) : (
-            standards.map((standard) => <StandardCard key={standard._id} standard={standard} />)
+          {loadError && (
+            <p className="text-sm text-red-600">
+              Unable to load standards right now. Please try again shortly.
+            </p>
           )}
+          {!loadError && standards.length === 0 && (
+            <p className="text-sm text-ink-500">No standards published yet.</p>
+          )}
+          {!loadError && standards.map((standard) => <StandardCard key={standard._id} standard={standard} />)}
         </div>
       </Container>
     </main>

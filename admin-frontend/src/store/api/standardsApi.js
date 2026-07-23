@@ -1,13 +1,37 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 
-const baseQuery = fetchBaseQuery({
+const rawBaseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1',
   credentials: 'include',
 });
 
+// Retries transient/network/5xx failures with backoff; bails immediately on
+// 4xx (validation, not-found, conflict, etc. won't be fixed by retrying),
+// and redirects to /login on session expiry.
+const baseQueryWithRetry = retry(
+  async (args, api, extraOptions) => {
+    const result = await rawBaseQuery(args, api, extraOptions);
+
+    if (result.error) {
+      const status = result.error.status;
+
+      if (status === 401 && typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+
+      if (typeof status === 'number' && status >= 400 && status < 500) {
+        retry.fail(result.error);
+      }
+    }
+
+    return result;
+  },
+  { maxRetries: 2 },
+);
+
 export const standardsApi = createApi({
   reducerPath: 'standardsApi',
-  baseQuery,
+  baseQuery: baseQueryWithRetry,
   tagTypes: ['Standard', 'Version'],
   endpoints: (builder) => ({
     getAdminStats: builder.query({
