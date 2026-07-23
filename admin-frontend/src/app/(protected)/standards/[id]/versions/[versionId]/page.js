@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import {
   useGetVersionQuery,
   useUpdateSectionsMutation,
@@ -14,6 +14,9 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import StatusPill from '@/components/ui/StatusPill';
 import Spinner from '@/components/ui/Spinner';
+import BlockEditor from '@/components/blocks/BlockEditor';
+import { BLOCK_TYPES, BLOCK_TYPE_LABELS, createDefaultBlockData } from '@/lib/blockDefaults';
+import { cn } from '@/lib/cn';
 
 const parseNumbering = (text) =>
   text
@@ -28,6 +31,7 @@ export default function VersionEditorPage() {
   const [transitionVersion, { isLoading: isTransitioning }] = useTransitionVersionMutation();
 
   const [sections, setSections] = useState(null);
+  const [expanded, setExpanded] = useState({});
   const [status, setStatus] = useState('draft');
   const [consultationStart, setConsultationStart] = useState('');
   const [consultationEnd, setConsultationEnd] = useState('');
@@ -85,6 +89,37 @@ export default function VersionEditorPage() {
 
   const addSection = () => {
     setSections((prev) => [...prev, { numberingText: '', title: '', blocks: [] }]);
+  };
+
+  const toggleExpanded = (index) => {
+    setExpanded((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  const updateBlock = (sectionIndex, blockIndex, updatedBlock) => {
+    updateSection(sectionIndex, {
+      blocks: sections[sectionIndex].blocks.map((b, i) => (i === blockIndex ? updatedBlock : b)),
+    });
+  };
+
+  const removeBlock = (sectionIndex, blockIndex) => {
+    updateSection(sectionIndex, {
+      blocks: sections[sectionIndex].blocks.filter((_, i) => i !== blockIndex),
+    });
+  };
+
+  const moveBlock = (sectionIndex, blockIndex, direction) => {
+    const blocks = [...sections[sectionIndex].blocks];
+    const target = blockIndex + direction;
+    if (target < 0 || target >= blocks.length) return;
+    [blocks[blockIndex], blocks[target]] = [blocks[target], blocks[blockIndex]];
+    updateSection(sectionIndex, { blocks });
+  };
+
+  const addBlock = (sectionIndex, type) => {
+    updateSection(sectionIndex, {
+      blocks: [...sections[sectionIndex].blocks, { type, data: createDefaultBlockData(type) }],
+    });
+    setExpanded((prev) => ({ ...prev, [sectionIndex]: true }));
   };
 
   const handleSaveSections = async (e) => {
@@ -190,54 +225,126 @@ export default function VersionEditorPage() {
             <p className="text-sm text-ink-500">No sections yet — add the first one above.</p>
           )}
 
-          {sections.map((section, index) => (
-            <div
-              key={section._id || index}
-              className="flex items-center gap-3 rounded-lg border border-surface-border p-3"
-            >
-              <input
-                value={section.numberingText}
-                onChange={(e) => updateSection(index, { numberingText: e.target.value })}
-                placeholder="2.1.1"
-                className="w-24 rounded-lg border border-surface-border px-2 py-1.5 text-sm font-mono"
-              />
-              <input
-                value={section.title}
-                onChange={(e) => updateSection(index, { title: e.target.value })}
-                placeholder="Section title"
-                className="flex-1 rounded-lg border border-surface-border px-2 py-1.5 text-sm"
-              />
-              <span className="whitespace-nowrap text-xs text-ink-500">
-                {section.blocks.length} block{section.blocks.length === 1 ? '' : 's'}
-              </span>
-              <button
-                type="button"
-                onClick={() => moveSection(index, -1)}
-                disabled={index === 0}
-                className="text-ink-500 hover:text-ink-900 disabled:opacity-30"
-                aria-label="Move up"
-              >
-                <ArrowUp className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => moveSection(index, 1)}
-                disabled={index === sections.length - 1}
-                className="text-ink-500 hover:text-ink-900 disabled:opacity-30"
-                aria-label="Move down"
-              >
-                <ArrowDown className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => removeSection(index)}
-                className="text-ink-500 hover:text-red-600"
-                aria-label="Remove section"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
+          {sections.map((section, index) => {
+            const isOpen = !!expanded[index];
+            return (
+              <div key={section._id || index} className="rounded-lg border border-surface-border">
+                <div className="flex items-center gap-3 p-3">
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(index)}
+                    className="text-ink-500 hover:text-ink-900"
+                    aria-label={isOpen ? 'Collapse content' : 'Expand content'}
+                  >
+                    {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </button>
+                  <input
+                    value={section.numberingText}
+                    onChange={(e) => updateSection(index, { numberingText: e.target.value })}
+                    placeholder="2.1.1"
+                    className="w-24 rounded-lg border border-surface-border px-2 py-1.5 text-sm font-mono"
+                  />
+                  <input
+                    value={section.title}
+                    onChange={(e) => updateSection(index, { title: e.target.value })}
+                    placeholder="Section title"
+                    className="flex-1 rounded-lg border border-surface-border px-2 py-1.5 text-sm"
+                  />
+                  <span className="whitespace-nowrap text-xs text-ink-500">
+                    {section.blocks.length} block{section.blocks.length === 1 ? '' : 's'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => moveSection(index, -1)}
+                    disabled={index === 0}
+                    className="text-ink-500 hover:text-ink-900 disabled:opacity-30"
+                    aria-label="Move up"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveSection(index, 1)}
+                    disabled={index === sections.length - 1}
+                    className="text-ink-500 hover:text-ink-900 disabled:opacity-30"
+                    aria-label="Move down"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeSection(index)}
+                    className="text-ink-500 hover:text-red-600"
+                    aria-label="Remove section"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {isOpen && (
+                  <div className="flex flex-col gap-4 border-t border-surface-border bg-ink-100/20 p-4">
+                    {section.blocks.map((block, blockIndex) => (
+                      <div key={blockIndex} className="rounded-lg border border-surface-border bg-surface-card p-3">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+                            {BLOCK_TYPE_LABELS[block.type] || block.type}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => moveBlock(index, blockIndex, -1)}
+                              disabled={blockIndex === 0}
+                              className="text-ink-500 hover:text-ink-900 disabled:opacity-30"
+                              aria-label="Move block up"
+                            >
+                              <ArrowUp className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveBlock(index, blockIndex, 1)}
+                              disabled={blockIndex === section.blocks.length - 1}
+                              className="text-ink-500 hover:text-ink-900 disabled:opacity-30"
+                              aria-label="Move block down"
+                            >
+                              <ArrowDown className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeBlock(index, blockIndex)}
+                              className="text-ink-500 hover:text-red-600"
+                              aria-label="Remove block"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                        <BlockEditor
+                          block={block}
+                          onChange={(updated) => updateBlock(index, blockIndex, updated)}
+                        />
+                      </div>
+                    ))}
+
+                    <div className="flex flex-wrap gap-2">
+                      {BLOCK_TYPES.map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => addBlock(index, type)}
+                          className={cn(
+                            'flex items-center gap-1 rounded-lg border border-surface-border px-2.5 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-100',
+                          )}
+                        >
+                          <Plus className="h-3 w-3" />
+                          {BLOCK_TYPE_LABELS[type]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {saveError && <p className="text-sm text-red-600">{saveError.data?.message || 'Failed to save.'}</p>}
 
