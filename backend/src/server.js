@@ -38,4 +38,17 @@ start().catch((err) => {
   process.exit(1);
 });
 
+// A crashed process serves nobody — log with full context and exit so the
+// process manager (Docker/PM2/etc.) can restart into a clean state, rather
+// than continuing to run with potentially corrupted in-memory state.
+process.on('unhandledRejection', (reason) => {
+  console.error('[server] unhandled promise rejection:', reason);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('[server] uncaught exception:', err);
+  process.exit(1);
+});
+
 module.exports = app;

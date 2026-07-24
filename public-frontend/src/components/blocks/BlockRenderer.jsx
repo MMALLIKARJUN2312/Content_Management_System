@@ -1,5 +1,12 @@
-import 'katex/dist/katex.min.css';
-import { InlineMath, BlockMath } from 'react-katex';
+import dynamic from 'next/dynamic';
+import Skeleton from '@/components/ui/Skeleton';
+
+// KaTeX (~270KB) is only needed on standards that actually have an equation
+// block (e.g. EV), so it's code-split out of the shared bundle instead of
+// loaded for every standard page.
+const EquationBlock = dynamic(() => import('./EquationBlock'), {
+  loading: () => <Skeleton className="h-12 w-full" />,
+});
 
 function ParagraphBlock({ data }) {
   return <p className="leading-7 text-ink-700">{data.text}</p>;
@@ -59,15 +66,6 @@ function TableBlock({ data }) {
           ))}
         </tbody>
       </table>
-    </div>
-  );
-}
-
-function EquationBlock({ data }) {
-  const Math = data.displayMode ? BlockMath : InlineMath;
-  return (
-    <div className="overflow-x-auto rounded-lg bg-ink-100/40 p-4">
-      <Math math={data.equation || ''} errorColor="#dc2626" />
     </div>
   );
 }

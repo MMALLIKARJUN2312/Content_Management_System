@@ -1,8 +1,15 @@
+import dynamic from 'next/dynamic';
 import ParagraphBlockEditor from './ParagraphBlockEditor';
 import ListBlockEditor from './ListBlockEditor';
 import NestedListBlockEditor from './NestedListBlockEditor';
 import TableBlockEditor from './TableBlockEditor';
-import EquationBlockEditor from './EquationBlockEditor';
+import Skeleton from '@/components/ui/Skeleton';
+
+// KaTeX (~270KB) is only needed when an admin actually opens an equation
+// block's editor, so it's code-split out of the main admin bundle.
+const EquationBlockEditor = dynamic(() => import('./EquationBlockEditor'), {
+  loading: () => <Skeleton className="h-24 w-full" />,
+});
 
 export default function BlockEditor({ block, onChange }) {
   const handleDataChange = (data) => onChange({ ...block, data });

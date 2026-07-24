@@ -7,6 +7,10 @@ function notFound(req, res, next) {
 function normalize(err) {
   if (err instanceof ApiError) return err;
 
+  if (err.type === 'entity.parse.failed') {
+    return new ApiError(400, 'Malformed JSON in request body');
+  }
+
   if (err.name === 'CastError') {
     return new ApiError(400, `Invalid id: ${err.value}`);
   }
